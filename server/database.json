@@ -1,0 +1,36 @@
+{
+  "users": [
+    {
+      "id": 1760214347259,
+      "name": "Max",
+      "email": "kirinhntr@gmail.com",
+      "password": "$2b$10$HPwdtwva54X/DcZ3SsShu.ugsUQMt6qHKMguyDdD74BiajyPAo3QO"
+    },
+    {
+      "id": 1760214431766,
+      "name": "test",
+      "email": "aaaa@fhu",
+      "password": "$2b$10$BnRsIO86Q/OxGzA9/ggloujFP4PGAOmT11Tw4XZkN.LChiapCOIke"
+    },
+    {
+      "id": 1760215024699,
+      "name": "a",
+      "email": "a@yahoo.com",
+      "password": "$2b$10$wnEidgvdvwTB2yULkeMuteiq6vxNF3fsw.47xUYsDVfkyU1Hu4uiG"
+    },
+    {
+      "id": 1760215102043,
+      "name": "dsfkj",
+      "email": "a@gmail.com",
+      "password": "$2b$10$J4p17UoiJlwDO091TS5W4e3CU3/3aT9z6yVxevTFHXvPIwLKr/1wq"
+    }
+  ],
+  "projects": [
+    {
+      "id": 1760216326240,
+      "userId": 1760215102043,
+      "name": "help me",
+      "todos": []
+    }
+  ]
+}

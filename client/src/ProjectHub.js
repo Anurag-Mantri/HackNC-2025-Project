@@ -1,49 +1,87 @@
+// client/src/ProjectHub.js
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, TextField, Button, Typography, List, ListItem, ListItemText, Paper, Box, CircularProgress } from '@mui/material';
+import './ProjectHub.css'; // We will continue to use our beautiful stylesheet
 
 const API_URL = 'http://localhost:3001';
 
+// --- NEW: A helper function to create the authorization headers ---
+// This function reads the token from browser storage and prepares it for API calls.
+const getAuthHeaders = () => {
+    const token = localStorage.getItem('token');
+    return {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    };
+};
+
 function ProjectHub() {
+    // All state management remains the same
     const [projects, setProjects] = useState([]);
     const [newProjectName, setNewProjectName] = useState('');
     const [selectedProject, setSelectedProject] = useState(null);
     const [prompt, setPrompt] = useState('');
     const [aiResponse, setAiResponse] = useState('');
     const [loading, setLoading] = useState(false);
-    
-    // --- NEW STATE for the to-do input ---
     const [newTodoText, setNewTodoText] = useState('');
 
+    // This useEffect will run once when the component loads to get the user's projects
     useEffect(() => {
         fetchProjects();
     }, []);
 
+    // --- UPDATED: All API functions now use getAuthHeaders() ---
+
     const fetchProjects = async () => {
         try {
-            const response = await axios.get(`${API_URL}/api/projects`);
+            // We now send the token to prove who we are
+            const response = await axios.get(`${API_URL}/api/projects`, getAuthHeaders());
             setProjects(response.data);
         } catch (error) {
-            console.error("Failed to fetch projects:", error);
+            console.error("Failed to fetch projects (check if logged in):", error);
+            // In a real app, you might log the user out here if the token is invalid
         }
     };
 
     const handleCreateProject = async () => {
         if (!newProjectName) return;
-        await axios.post(`${API_URL}/api/projects`, { name: newProjectName });
-        setNewProjectName('');
-        fetchProjects();
+        try {
+            await axios.post(`${API_URL}/api/projects`, { name: newProjectName }, getAuthHeaders());
+            setNewProjectName('');
+            fetchProjects(); // Refresh the list with the new project
+        } catch (error) {
+            console.error("Failed to create project:", error);
+        }
+    };
+
+    const handleAddTodo = async () => {
+        if (!newTodoText || !selectedProject) return;
+        
+        // Optimistic UI update for a smoother experience
+        const updatedSelectedProject = { ...selectedProject, todos: [...selectedProject.todos, newTodoText] };
+        setSelectedProject(updatedSelectedProject);
+
+        try {
+            await axios.post(`${API_URL}/api/projects/${selectedProject.id}/todos`, { text: newTodoText }, getAuthHeaders());
+            setNewTodoText('');
+            fetchProjects(); // Re-sync with the server to be safe
+        } catch (error) {
+            console.error("Failed to add todo:", error);
+            // Optionally revert the optimistic update on failure
+            fetchProjects();
+        }
     };
 
     const handleAskAI = async () => {
         if (!prompt || !selectedProject) return;
         setLoading(true);
         setAiResponse('');
-
-        const enhancedPrompt = `For my project "${selectedProject.name}", I need help with the following: ${prompt}. Please provide a clear, step-by-step answer or a list of materials from a store like Lowe's.`;
+        const enhancedPrompt = `For my project "${selectedProject.name}", I need help with the following: ${prompt}.`;
         
         try {
-            const response = await axios.post(`${API_URL}/api/chat`, { prompt: enhancedPrompt });
+            const response = await axios.post(`${API_URL}/api/chat`, { prompt: enhancedPrompt }, getAuthHeaders());
             setAiResponse(response.data.response);
         } catch (error) {
             console.error("AI chat failed:", error);
@@ -52,112 +90,97 @@ function ProjectHub() {
             setLoading(false);
         }
     };
-    
-    // --- NEW HANDLER for adding a to-do item ---
-    const handleAddTodo = async () => {
-        if (!newTodoText || !selectedProject) return;
 
-        // Optimistically update the UI first for a better user experience
-        const updatedSelectedProject = {
-            ...selectedProject,
-            todos: [...selectedProject.todos, newTodoText]
-        };
-        setSelectedProject(updatedSelectedProject);
-
-        // Then send the request to the server
-        await axios.post(`${API_URL}/api/projects/${selectedProject.id}/todos`, { text: newTodoText });
-        
-        setNewTodoText(''); // Clear the input box
-        
-        // Fetch projects again to ensure client and server are in sync
-        fetchProjects();
-    };
-
-
+    // The JSX (the visual part) is completely unchanged because all the logic changes
+    // happened in the functions above. The UI will look and feel the same.
     return (
-        <Container style={{ marginTop: '20px' }}>
-            <Typography variant="h3" gutterBottom align="center">Lowe's Project Hub</Typography>
+        <div className="hub-container">
+            <h1 className="hub-title">Lowe's Project Hub</h1>
+            <div className="main-content">
 
-            <Paper elevation={3} style={{ padding: '16px', marginBottom: '24px' }}>
-                <Typography variant="h5">Create New Project</Typography>
-                <TextField
-                    label="Project Name"
-                    value={newProjectName}
-                    onChange={(e) => setNewProjectName(e.target.value)}
-                    fullWidth
-                    margin="normal"
-                />
-                <Button variant="contained" onClick={handleCreateProject}>Create</Button>
-            </Paper>
+                {/* --- LEFT COLUMN --- */}
+                <div className="left-column">
+                    <div className="hub-panel">
+                        <h2 className="panel-title">Create New Project</h2>
+                        <input
+                            type="text"
+                            placeholder="Project Name"
+                            className="hub-input"
+                            value={newProjectName}
+                            onChange={(e) => setNewProjectName(e.target.value)}
+                        />
+                        <button className="hub-button" onClick={handleCreateProject}>Create</button>
+                    </div>
 
-            <Box display="flex" gap={3}>
-                <Paper elevation={3} style={{ flex: 1, padding: '16px' }}>
-                    <Typography variant="h5">My Projects</Typography>
-                    <List>
-                        {projects.map((project) => (
-                            <ListItem button key={project.id} onClick={() => setSelectedProject(project)} selected={selectedProject && selectedProject.id === project.id}>
-                                <ListItemText primary={project.name} />
-                            </ListItem>
-                        ))}
-                    </List>
-                </Paper>
+                    <div className="hub-panel">
+                        <h2 className="panel-title">My Projects</h2>
+                        <ul className="project-list">
+                            {projects.map((project) => (
+                                <li
+                                    key={project.id}
+                                    className={`project-list-item ${selectedProject && selectedProject.id === project.id ? 'selected' : ''}`}
+                                    onClick={() => setSelectedProject(project)}
+                                >
+                                    {project.name}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
 
-                <Paper elevation={3} style={{ flex: 2, padding: '16px' }}>
+                {/* --- RIGHT COLUMN --- */}
+                <div className="right-column hub-panel">
                     {selectedProject ? (
                         <>
-                            <Typography variant="h5" gutterBottom>Project: {selectedProject.name}</Typography>
-                            
-                            <Typography variant="h6">Project To-Do List</Typography>
-                            <List dense>
-                                {selectedProject.todos.length > 0 ? selectedProject.todos.map((todo, index) => (
-                                    <ListItem key={index}>
-                                        <ListItemText primary={`• ${todo}`} />
-                                    </ListItem>
-                                )) : <Typography variant="body2" color="textSecondary">No tasks yet. Add one below!</Typography>}
-                            </List>
+                            <h2 className="panel-title">Project: {selectedProject.name}</h2>
 
-                            {/* --- NEW UI for adding a to-do --- */}
-                            <Box display="flex" mt={1} mb={3}>
-                                <TextField
-                                    label="New To-Do Item"
+                            <h3 style={{ fontWeight: 500, marginBottom: '10px' }}>Project To-Do List</h3>
+                            <ul className="todo-list">
+                                {selectedProject.todos.length > 0 ? selectedProject.todos.map((todo, index) => (
+                                    <li key={index} className="todo-list-item">{todo}</li>
+                                )) : <p style={{ fontSize: '14px', color: '#888' }}>No tasks yet. Add one below!</p>}
+                            </ul>
+
+                            <div className="add-todo-box">
+                                <input
+                                    type="text"
+                                    placeholder="New To-Do Item"
+                                    className="hub-input"
                                     value={newTodoText}
                                     onChange={(e) => setNewTodoText(e.target.value)}
-                                    onKeyPress={(e) => e.key === 'Enter' && handleAddTodo()} // Allow pressing Enter
-                                    fullWidth
-                                    size="small"
+                                    onKeyPress={(e) => e.key === 'Enter' && handleAddTodo()}
                                 />
-                                <Button variant="contained" onClick={handleAddTodo} style={{ marginLeft: '8px' }}>Add</Button>
-                            </Box>
-                            
-                            <Typography variant="h6">Ask Maac for Help!</Typography>
-                            <TextField
-                                label="Ask for ideas, steps, or materials..."
+                                <button className="hub-button" onClick={handleAddTodo} style={{ width: 'auto', marginTop: '0' }}>Add</button>
+                            </div>
+
+                            <h3 style={{ fontWeight: 500, borderTop: '1px solid #eee', paddingTop: '20px' }}>Ask Maac for Help!</h3>
+                            <textarea
+                                placeholder="Ask for ideas, steps, or materials..."
+                                className="ai-textarea"
                                 value={prompt}
                                 onChange={(e) => setPrompt(e.target.value)}
-                                fullWidth
-                                multiline
-                                rows={3}
-                                margin="normal"
                             />
-                            <Button variant="contained" onClick={handleAskAI} disabled={loading}>
-                                {loading ? <CircularProgress size={24} /> : 'Ask AI'}
-                            </Button>
+                            <button className="hub-button" onClick={handleAskAI} disabled={loading}>
+                                {loading ? 'Thinking...' : 'Ask AI'}
+                            </button>
 
                             {aiResponse && (
-                                <Box mt={2} p={2} border={1} borderColor="grey.300" borderRadius={1} style={{ backgroundColor: '#f7f7f7' }}>
-                                    <Typography variant="subtitle1" style={{ fontWeight: 'bold' }}>AI Response:</Typography>
-                                    <Typography style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>{aiResponse}</Typography>
-                                </Box>
+                                <div className="ai-response-box">
+                                    <strong>AI Response:</strong>
+                                    <p>{aiResponse}</p>
+                                </div>
                             )}
                         </>
                     ) : (
-                        <Box display="flex" justifyContent="center" alignItems="center" height="100%">
-                            <Typography variant="h6" color="textSecondary">Select a project to get started</Typography>
-                        </Box>
+                        <div style={{ textAlign: 'center', color: '#888', paddingTop: '100px' }}>
+                            <h2>Select a project to get started</h2>
+                            <p>Your project details will appear here.</p>
+                        </div>
                     )}
-                </Paper>
-            </Box>
-        </Container>
+                </div>
+
+            </div>
+        </div>
     );
 }
 

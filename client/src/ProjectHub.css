@@ -1,0 +1,162 @@
+/* client/src/ProjectHub.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+/* --- Main Layout & Background --- */
+.hub-container {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #f4f7f6;
+    padding: 40px;
+    min-height: 100vh;
+}
+
+.hub-title {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+    font-weight: 700;
+}
+
+.main-content {
+    display: flex;
+    gap: 30px;
+}
+
+/* --- General Panel Styling --- */
+.hub-panel {
+    background-color: #fff;
+    border-radius: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    transition: all 0.3s ease;
+}
+
+.panel-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* --- Left Column (Projects List & Creation) --- */
+.left-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* --- Right Column (Project Details) --- */
+.right-column {
+    flex: 2;
+}
+
+/* --- Input and Button Styling (to match Login screen) --- */
+.hub-input {
+    background-color: #eee;
+    border: none;
+    margin: 8px 0;
+    padding: 12px 15px;
+    font-size: 14px;
+    border-radius: 8px;
+    width: 100%;
+    outline: none;
+    box-sizing: border-box; /* Ensures padding doesn't affect width */
+}
+
+.hub-button {
+    background-color: #512da8;
+    color: #fff;
+    font-size: 12px;
+    padding: 12px 45px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-top: 10px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.hub-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* --- Project List Styling --- */
+.project-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.project-list-item {
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    font-weight: 500;
+}
+
+.project-list-item:hover {
+    background-color: #f0f0f0;
+}
+
+.project-list-item.selected {
+    background-color: #512da8;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(81, 45, 168, 0.3);
+}
+
+/* --- To-Do List Styling --- */
+.todo-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.todo-list-item {
+    background-color: #f7f9fc;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 8px;
+}
+
+.add-todo-box {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+/* --- AI Section Styling --- */
+.ai-textarea {
+    background-color: #eee;
+    border: none;
+    margin-top: 15px;
+    padding: 12px 15px;
+    font-size: 14px;
+    border-radius: 8px;
+    width: 100%;
+    outline: none;
+    resize: vertical;
+    min-height: 80px;
+    box-sizing: border-box;
+}
+
+.ai-response-box {
+    background-color: #f7f9fc;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 20px;
+    white-space: pre-wrap;
+    font-family: 'monospace';
+    font-size: 14px;
+    max-height: 300px;
+    overflow-y: auto;
+}
