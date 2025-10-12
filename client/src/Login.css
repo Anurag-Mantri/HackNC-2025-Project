@@ -11,8 +11,8 @@
 }
 
 .login-container {
-    background-color: #c9d6ff;
-    background: linear-gradient(to right, #e2e2e2, #c9d6ff);
+    background-color: #68aef7;
+    background: linear-gradient(to right, #e2e2e2, #68aef7);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -51,7 +51,7 @@
 }
 
 .container button {
-    background-color: #512da8;
+    background-color: #004792;
     color: #fff;
     font-size: 12px;
     padding: 10px 45px;
@@ -152,8 +152,8 @@
 }
 
 .toggle {
-    background-color: #512da8;
-    background: linear-gradient(to right, #5c6bc0, #512da8);
+    background-color: #004792;
+    background: linear-gradient(to right, #68aef7, #004792);
     height: 100%;
     color: #fff;
     position: relative;

@@ -9,28 +9,22 @@
   ],
   "projects": [
     {
-      "id": 1760233143955,
+      "id": 1760234032599,
       "userId": 1760233134972,
-      "name": "Yellow Fence",
+      "name": "House",
       "todos": [
         {
-          "id": 1760233189430,
-          "text": "get paint",
-          "completed": true
+          "id": 1760234877628,
+          "text": "Buy Planks",
+          "completed": false
         }
       ],
       "materials": [
         {
-          "id": 1760233200955,
-          "name": "Paint",
+          "id": 1760234888535,
+          "name": "White Paint",
           "quantity": "2 gals",
-          "cost": 47.43
-        },
-        {
-          "id": 1760233771183,
-          "name": "bricks",
-          "quantity": "10",
-          "cost": 0.6
+          "cost": 25.34
         }
       ]
     }

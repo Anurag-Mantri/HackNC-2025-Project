@@ -11,6 +11,9 @@
     box-sizing: border-box;
 }
 .hub-title {
+    /* --- ADD THIS LINE --- */
+    font-family: "Avenir Next", "Avenir", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
     text-align: center;
     color: #333;
     font-weight: 700;
@@ -57,7 +60,7 @@
 .ai-textarea { resize: vertical; min-height: 80px; }
 
 .hub-button {
-    background-color: #512da8;
+    background-color: #004792;
     color: #fff;
     font-size: 12px;
     padding: 12px 45px;
@@ -71,7 +74,7 @@
     width: 100%;
     transition: background-color 0.2s ease;
 }
-.hub-button:hover { background-color: #4527a0; }
+.hub-button:hover { background-color: #004792; }
 .hub-button:disabled { background-color: #ccc; cursor: not-allowed; }
 
 /* --- Project List Styling --- */
@@ -86,7 +89,7 @@
 }
 .project-list-item:hover { background-color: #f0f0f0; transform: translateX(5px); }
 .project-list-item.selected {
-    background-color: #512da8;
+    background-color: #004792;
     color: #fff;
     box-shadow: 0 2px 8px rgba(81, 45, 168, 0.3);
     transform: translateX(5px);
@@ -109,7 +112,7 @@
     width: 18px;
     height: 18px;
     border-radius: 4px;
-    border: 2px solid #512da8;
+    border: 2px solid #004792;
     margin-right: 12px;
     display: flex;
     align-items: center;
