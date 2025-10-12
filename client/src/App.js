@@ -1,7 +1,7 @@
 // client/src/App.js
 
 import React, { useState } from 'react';
-import Login from './Login'; // Import our new Login component
+import Login from './Login';
 import ProjectHub from './ProjectHub'; // Import our new ProjectHub component
 
 function App() {
@@ -14,13 +14,21 @@ function App() {
         setIsLoggedIn(true);
     };
 
+    const handleLogout = () => {
+        // Remove the token from browser storage
+        localStorage.removeItem('token');
+        // Update the state to show the Login screen
+        setIsLoggedIn(false);
+    };
+
+    // A component can only have ONE return statement.
     return (
         <div>
             {isLoggedIn ? (
-                // If the user IS logged in, show the ProjectHub
-                <ProjectHub />
+                // If logged in, show the ProjectHub and pass the handleLogout function as a prop
+                <ProjectHub onLogout={handleLogout} />
             ) : (
-                // If the user is NOT logged in, show the Login component
+                // If not logged in, show the Login component
                 <Login onLoginSuccess={handleLoginSuccess} />
             )}
         </div>

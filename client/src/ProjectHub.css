@@ -160,3 +160,49 @@
     max-height: 300px;
     overflow-y: auto;
 }
+
+/* In client/src/ProjectHub.css */
+
+/* --- ADD THESE NEW STYLES AT THE END OF THE FILE --- */
+
+.ai-response-box strong {
+    display: block;
+    margin-bottom: 15px;
+}
+
+.ai-response-section {
+    margin-bottom: 20px;
+}
+
+.ai-response-section h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.ai-response-section ul {
+    list-style-type: disc;
+    padding-left: 20px;
+}
+
+.ai-response-section li {
+    margin-bottom: 5px;
+}
+
+.ai-follow-up-questions button {
+    background-color: #f0f0f0;
+    color: #333;
+    font-size: 12px;
+    padding: 8px 15px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-right: 10px;
+    margin-top: 5px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.ai-follow-up-questions button:hover {
+    background-color: #e0e0e0;
+}

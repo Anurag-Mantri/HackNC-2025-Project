@@ -2,12 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './ProjectHub.css'; // We will continue to use our beautiful stylesheet
+import './ProjectHub.css';
 
 const API_URL = 'http://localhost:3001';
 
-// --- NEW: A helper function to create the authorization headers ---
-// This function reads the token from browser storage and prepares it for API calls.
 const getAuthHeaders = () => {
     const token = localStorage.getItem('token');
     return {
@@ -17,31 +15,25 @@ const getAuthHeaders = () => {
     };
 };
 
-function ProjectHub() {
-    // All state management remains the same
+function ProjectHub({ onLogout }) {
     const [projects, setProjects] = useState([]);
     const [newProjectName, setNewProjectName] = useState('');
     const [selectedProject, setSelectedProject] = useState(null);
     const [prompt, setPrompt] = useState('');
-    const [aiResponse, setAiResponse] = useState('');
+    const [aiResponse, setAiResponse] = useState(null); // Will hold the JSON object from the AI
     const [loading, setLoading] = useState(false);
     const [newTodoText, setNewTodoText] = useState('');
 
-    // This useEffect will run once when the component loads to get the user's projects
     useEffect(() => {
         fetchProjects();
     }, []);
 
-    // --- UPDATED: All API functions now use getAuthHeaders() ---
-
     const fetchProjects = async () => {
         try {
-            // We now send the token to prove who we are
             const response = await axios.get(`${API_URL}/api/projects`, getAuthHeaders());
             setProjects(response.data);
         } catch (error) {
             console.error("Failed to fetch projects (check if logged in):", error);
-            // In a real app, you might log the user out here if the token is invalid
         }
     };
 
@@ -50,7 +42,7 @@ function ProjectHub() {
         try {
             await axios.post(`${API_URL}/api/projects`, { name: newProjectName }, getAuthHeaders());
             setNewProjectName('');
-            fetchProjects(); // Refresh the list with the new project
+            fetchProjects();
         } catch (error) {
             console.error("Failed to create project:", error);
         }
@@ -58,47 +50,55 @@ function ProjectHub() {
 
     const handleAddTodo = async () => {
         if (!newTodoText || !selectedProject) return;
-        
-        // Optimistic UI update for a smoother experience
         const updatedSelectedProject = { ...selectedProject, todos: [...selectedProject.todos, newTodoText] };
         setSelectedProject(updatedSelectedProject);
-
         try {
             await axios.post(`${API_URL}/api/projects/${selectedProject.id}/todos`, { text: newTodoText }, getAuthHeaders());
             setNewTodoText('');
-            fetchProjects(); // Re-sync with the server to be safe
+            fetchProjects();
         } catch (error) {
             console.error("Failed to add todo:", error);
-            // Optionally revert the optimistic update on failure
-            fetchProjects();
+            fetchProjects(); // Revert optimistic update on failure
         }
     };
 
     const handleAskAI = async () => {
         if (!prompt || !selectedProject) return;
         setLoading(true);
-        setAiResponse('');
+        setAiResponse(null); // Clear previous response
         const enhancedPrompt = `For my project "${selectedProject.name}", I need help with the following: ${prompt}.`;
         
         try {
             const response = await axios.post(`${API_URL}/api/chat`, { prompt: enhancedPrompt }, getAuthHeaders());
-            setAiResponse(response.data.response);
+            setAiResponse(response.data); // Store the entire JSON object
         } catch (error) {
             console.error("AI chat failed:", error);
-            setAiResponse("Sorry, something went wrong while contacting the AI.");
+            setAiResponse({ summary: "Sorry, something went wrong while contacting the AI.", materials: [], steps: [], questions: [] });
         } finally {
             setLoading(false);
         }
     };
+    
+    const handleFollowUpQuestion = (question) => {
+        setPrompt(question);
+        // This is a simple version. For an even better UX, you could automatically
+        // call handleAskAI() right after setting the prompt.
+    };
 
-    // The JSX (the visual part) is completely unchanged because all the logic changes
-    // happened in the functions above. The UI will look and feel the same.
     return (
         <div className="hub-container">
-            <h1 className="hub-title">Lowe's Project Hub</h1>
-            <div className="main-content">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+                <h1 className="hub-title" style={{ marginBottom: '0' }}>Lowe's Project Hub</h1>
+                <button 
+                    className="hub-button" 
+                    onClick={onLogout} 
+                    style={{ width: 'auto', backgroundColor: '#d32f2f' }}
+                >
+                    Logout
+                </button>
+            </div>
 
-                {/* --- LEFT COLUMN --- */}
+            <div className="main-content">
                 <div className="left-column">
                     <div className="hub-panel">
                         <h2 className="panel-title">Create New Project</h2>
@@ -111,7 +111,6 @@ function ProjectHub() {
                         />
                         <button className="hub-button" onClick={handleCreateProject}>Create</button>
                     </div>
-
                     <div className="hub-panel">
                         <h2 className="panel-title">My Projects</h2>
                         <ul className="project-list">
@@ -128,19 +127,16 @@ function ProjectHub() {
                     </div>
                 </div>
 
-                {/* --- RIGHT COLUMN --- */}
                 <div className="right-column hub-panel">
                     {selectedProject ? (
                         <>
                             <h2 className="panel-title">Project: {selectedProject.name}</h2>
-
                             <h3 style={{ fontWeight: 500, marginBottom: '10px' }}>Project To-Do List</h3>
                             <ul className="todo-list">
                                 {selectedProject.todos.length > 0 ? selectedProject.todos.map((todo, index) => (
                                     <li key={index} className="todo-list-item">{todo}</li>
                                 )) : <p style={{ fontSize: '14px', color: '#888' }}>No tasks yet. Add one below!</p>}
                             </ul>
-
                             <div className="add-todo-box">
                                 <input
                                     type="text"
@@ -164,10 +160,34 @@ function ProjectHub() {
                                 {loading ? 'Thinking...' : 'Ask AI'}
                             </button>
 
+                            {/* --- NEW, STRUCTURED AI RESPONSE RENDERING --- */}
                             {aiResponse && (
                                 <div className="ai-response-box">
                                     <strong>AI Response:</strong>
-                                    <p>{aiResponse}</p>
+                                    <p style={{fontStyle: 'italic', margin: '10px 0'}}>{aiResponse.summary}</p>
+                                    
+                                    {aiResponse.materials && aiResponse.materials.length > 0 && (
+                                        <div className="ai-response-section">
+                                            <h4>Materials & Tools</h4>
+                                            <ul>{aiResponse.materials.map((item, i) => <li key={i}>{item}</li>)}</ul>
+                                        </div>
+                                    )}
+
+                                    {aiResponse.steps && aiResponse.steps.length > 0 && (
+                                        <div className="ai-response-section">
+                                            <h4>Next Steps</h4>
+                                            <ul>{aiResponse.steps.map((step, i) => <li key={i}>{step}</li>)}</ul>
+                                        </div>
+                                    )}
+
+                                    {aiResponse.questions && aiResponse.questions.length > 0 && (
+                                        <div className="ai-response-section ai-follow-up-questions">
+                                            <h4>Next Questions</h4>
+                                            {aiResponse.questions.map((q, i) => (
+                                                <button key={i} onClick={() => handleFollowUpQuestion(q)}>{q}</button>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </>
@@ -178,7 +198,6 @@ function ProjectHub() {
                         </div>
                     )}
                 </div>
-
             </div>
         </div>
     );

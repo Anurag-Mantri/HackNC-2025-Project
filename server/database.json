@@ -1,35 +1,29 @@
 {
   "users": [
     {
-      "id": 1760214347259,
-      "name": "Max",
-      "email": "kirinhntr@gmail.com",
-      "password": "$2b$10$HPwdtwva54X/DcZ3SsShu.ugsUQMt6qHKMguyDdD74BiajyPAo3QO"
-    },
-    {
-      "id": 1760214431766,
-      "name": "test",
-      "email": "aaaa@fhu",
-      "password": "$2b$10$BnRsIO86Q/OxGzA9/ggloujFP4PGAOmT11Tw4XZkN.LChiapCOIke"
-    },
-    {
-      "id": 1760215024699,
+      "id": 1760229144515,
       "name": "a",
-      "email": "a@yahoo.com",
-      "password": "$2b$10$wnEidgvdvwTB2yULkeMuteiq6vxNF3fsw.47xUYsDVfkyU1Hu4uiG"
+      "email": "a@gmail.com",
+      "password": "$2b$10$BbXW/vr7vpL6tWkMEk1UxeL1a8HU5CHPlqt2tOS41xsa9MQYZWb56"
     },
     {
-      "id": 1760215102043,
-      "name": "dsfkj",
-      "email": "a@gmail.com",
-      "password": "$2b$10$J4p17UoiJlwDO091TS5W4e3CU3/3aT9z6yVxevTFHXvPIwLKr/1wq"
+      "id": 1760229166000,
+      "name": "b",
+      "email": "b@gmail.com",
+      "password": "$2b$10$lSMVD1XGlAPy1OQb/.HimOiidSoOGcEmCJjErbfM3LJES2npChkUS"
     }
   ],
   "projects": [
     {
-      "id": 1760216326240,
-      "userId": 1760215102043,
-      "name": "help me",
+      "id": 1760229155254,
+      "userId": 1760229144515,
+      "name": "yellow fence",
+      "todos": []
+    },
+    {
+      "id": 1760229179403,
+      "userId": 1760229166000,
+      "name": "red fence",
       "todos": []
     }
   ]
