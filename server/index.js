@@ -14,6 +14,26 @@ const app = express();
 const port = 3001;
 const DB_PATH = './database.json';
 
+const allowedOrigins = [
+    'http://localhost:3000', // For local development
+    'http://cama-lowesproj.us',
+    'http://www.cama-lowesproj.us',
+    'https://cama-lowesproj-frontend.onrender.com' // <-- THIS IS THE CRITICAL ADDITION
+];
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+            return callback(new Error(msg), false);
+        }
+    }
+};
+
 app.use(cors());
 app.use(express.json());
 
