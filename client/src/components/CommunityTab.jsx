@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+
 // A simple CSS-in-JS for styling to keep this component self-contained
 const styles = {
   container: {
@@ -127,7 +129,7 @@ if (token) {
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/posts');
+      const response = await fetch('${API_URL}/api/posts');
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -172,7 +174,7 @@ if (token) {
     }
 
     try {
-      const response = await fetch('http://localhost:3001/api/posts', {
+      const response = await fetch('${API_URL}/api/posts', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -201,7 +203,7 @@ if (token) {
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/api/posts/${postId}`, {
+      const response = await fetch(`${API_URL}/api/posts/${postId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -278,7 +280,7 @@ if (token) {
             
             {post.imageUrl && (
               <img
-                src={`http://localhost:3001${post.imageUrl}`}
+                src={`${API_URL}${post.imageUrl}`}
                 alt="Post content"
                 style={styles.postImage}
               />
