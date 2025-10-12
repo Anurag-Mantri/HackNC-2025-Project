@@ -1,30 +1,39 @@
 {
   "users": [
     {
-      "id": 1760229144515,
+      "id": 1760233134972,
       "name": "a",
       "email": "a@gmail.com",
-      "password": "$2b$10$BbXW/vr7vpL6tWkMEk1UxeL1a8HU5CHPlqt2tOS41xsa9MQYZWb56"
-    },
-    {
-      "id": 1760229166000,
-      "name": "b",
-      "email": "b@gmail.com",
-      "password": "$2b$10$lSMVD1XGlAPy1OQb/.HimOiidSoOGcEmCJjErbfM3LJES2npChkUS"
+      "password": "$2b$10$B8PGL7eyEyIFF/NlG06QneWA2etgRUlmJWLQow/vp4FtGn/w/4zue"
     }
   ],
   "projects": [
     {
-      "id": 1760229155254,
-      "userId": 1760229144515,
-      "name": "yellow fence",
-      "todos": []
-    },
-    {
-      "id": 1760229179403,
-      "userId": 1760229166000,
-      "name": "red fence",
-      "todos": []
+      "id": 1760233143955,
+      "userId": 1760233134972,
+      "name": "Yellow Fence",
+      "todos": [
+        {
+          "id": 1760233189430,
+          "text": "get paint",
+          "completed": true
+        }
+      ],
+      "materials": [
+        {
+          "id": 1760233200955,
+          "name": "Paint",
+          "quantity": "2 gals",
+          "cost": 47.43
+        },
+        {
+          "id": 1760233771183,
+          "name": "bricks",
+          "quantity": "10",
+          "cost": 0.6
+        }
+      ]
     }
-  ]
+  ],
+  "materials": []
 }

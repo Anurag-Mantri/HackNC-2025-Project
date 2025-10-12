@@ -8,18 +8,17 @@
     background-color: #f4f7f6;
     padding: 40px;
     min-height: 100vh;
+    box-sizing: border-box;
 }
-
 .hub-title {
     text-align: center;
     color: #333;
-    margin-bottom: 30px;
     font-weight: 700;
 }
-
 .main-content {
     display: flex;
     gap: 30px;
+    margin-top: 30px;
 }
 
 /* --- General Panel Styling --- */
@@ -28,9 +27,7 @@
     border-radius: 20px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     padding: 25px;
-    transition: all 0.3s ease;
 }
-
 .panel-title {
     font-size: 1.25rem;
     font-weight: 600;
@@ -40,21 +37,12 @@
     padding-bottom: 10px;
 }
 
-/* --- Left Column (Projects List & Creation) --- */
-.left-column {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-}
+/* --- Column Layout --- */
+.left-column { flex: 1; display: flex; flex-direction: column; gap: 30px; }
+.right-column { flex: 2; }
 
-/* --- Right Column (Project Details) --- */
-.right-column {
-    flex: 2;
-}
-
-/* --- Input and Button Styling (to match Login screen) --- */
-.hub-input {
+/* --- Input and Button Styling --- */
+.hub-input, .ai-textarea {
     background-color: #eee;
     border: none;
     margin: 8px 0;
@@ -63,8 +51,10 @@
     border-radius: 8px;
     width: 100%;
     outline: none;
-    box-sizing: border-box; /* Ensures padding doesn't affect width */
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
 }
+.ai-textarea { resize: vertical; min-height: 80px; }
 
 .hub-button {
     background-color: #512da8;
@@ -79,117 +69,91 @@
     margin-top: 10px;
     cursor: pointer;
     width: 100%;
+    transition: background-color 0.2s ease;
 }
-
-.hub-button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
+.hub-button:hover { background-color: #4527a0; }
+.hub-button:disabled { background-color: #ccc; cursor: not-allowed; }
 
 /* --- Project List Styling --- */
-.project-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
+.project-list { list-style: none; padding: 0; margin: 0; }
 .project-list-item {
     padding: 15px;
     border-radius: 8px;
     cursor: pointer;
     margin-bottom: 10px;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: all 0.2s ease;
     font-weight: 500;
 }
-
-.project-list-item:hover {
-    background-color: #f0f0f0;
-}
-
+.project-list-item:hover { background-color: #f0f0f0; transform: translateX(5px); }
 .project-list-item.selected {
     background-color: #512da8;
     color: #fff;
     box-shadow: 0 2px 8px rgba(81, 45, 168, 0.3);
+    transform: translateX(5px);
 }
 
-/* --- To-Do List Styling --- */
-.todo-list {
-    list-style: none;
-    padding: 0;
-    margin-bottom: 20px;
-}
-
-.todo-list-item {
-    background-color: #f7f9fc;
+/* --- Checklist Item Styling --- */
+.todo-list { list-style: none; padding: 0; margin-bottom: 20px; }
+.todo-checklist-item {
+    display: flex;
+    align-items: center;
     padding: 10px;
     border-radius: 5px;
     margin-bottom: 8px;
+    background-color: #f7f9fc;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
 }
-
-.add-todo-box {
+.todo-checklist-item:hover { background-color: #eef2f7; }
+.todo-checkbox {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 2px solid #512da8;
+    margin-right: 12px;
     display: flex;
-    gap: 10px;
     align-items: center;
-    margin-bottom: 30px;
+    justify-content: center;
+    flex-shrink: 0;
 }
+.todo-checkbox-tick {
+    width: 10px;
+    height: 10px;
+    background-color: #4caf50;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+.todo-checklist-item.completed { background-color: #f0f4f0; }
+.todo-checklist-item.completed .todo-checkbox { background-color: #e8f5e9; border-color: #4caf50; }
+.todo-checklist-item.completed .todo-checkbox-tick { opacity: 1; }
+.todo-checklist-item.completed span { text-decoration: line-through; color: #888; }
+.add-todo-box { display: flex; gap: 10px; align-items: center; margin-bottom: 30px; }
+
+/* --- Materials Table Styling --- */
+.materials-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+.materials-table th, .materials-table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+.materials-table th { font-weight: 600; color: #555; font-size: 14px; }
+.materials-table td { font-size: 14px; }
+.materials-table tfoot td { font-weight: 700; font-size: 1rem; color: #333; }
+.add-material-form { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 10px; align-items: center; }
 
 /* --- AI Section Styling --- */
-.ai-textarea {
-    background-color: #eee;
-    border: none;
-    margin-top: 15px;
-    padding: 12px 15px;
-    font-size: 14px;
-    border-radius: 8px;
-    width: 100%;
-    outline: none;
-    resize: vertical;
-    min-height: 80px;
-    box-sizing: border-box;
-}
-
 .ai-response-box {
     background-color: #f7f9fc;
     border: 1px solid #e0e0e0;
     border-radius: 8px;
     padding: 15px;
     margin-top: 20px;
-    white-space: pre-wrap;
-    font-family: 'monospace';
     font-size: 14px;
     max-height: 300px;
     overflow-y: auto;
 }
-
-/* In client/src/ProjectHub.css */
-
-/* --- ADD THESE NEW STYLES AT THE END OF THE FILE --- */
-
-.ai-response-box strong {
-    display: block;
-    margin-bottom: 15px;
-}
-
-.ai-response-section {
-    margin-bottom: 20px;
-}
-
-.ai-response-section h4 {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 8px;
-}
-
-.ai-response-section ul {
-    list-style-type: disc;
-    padding-left: 20px;
-}
-
-.ai-response-section li {
-    margin-bottom: 5px;
-}
-
+.ai-response-box strong { display: block; margin-bottom: 15px; }
+.ai-response-section { margin-bottom: 20px; }
+.ai-response-section h4 { font-size: 1rem; font-weight: 600; color: #333; margin-bottom: 8px; }
+.ai-response-section ul { list-style: none; padding-left: 5px; }
+.ai-response-section li { margin-bottom: 5px; }
 .ai-follow-up-questions button {
     background-color: #f0f0f0;
     color: #333;
@@ -200,9 +164,39 @@
     cursor: pointer;
     margin-right: 10px;
     margin-top: 5px;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.2s ease;
+}
+.ai-follow-up-questions button:hover { background-color: #e0e0e0; }
+
+/* In client/src/ProjectHub.css */
+
+/* --- ADD THESE NEW STYLES AT THE END --- */
+
+/* Make the list item a flex container to position the button */
+.project-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.ai-follow-up-questions button:hover {
-    background-color: #e0e0e0;
+.delete-project-btn {
+    background-color: #ef5350; /* A nice red color */
+    color: white;
+    border: none;
+    border-radius: 50%; /* Makes it a circle */
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+    line-height: 24px; /* Centers the 'x' vertically */
+    text-align: center;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+    flex-shrink: 0; /* Prevents the button from shrinking */
+}
+
+.delete-project-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
