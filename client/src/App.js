@@ -1,7 +1,7 @@
 // client/src/App.js
 
 import React, { useState } from 'react';
-import Login from './Login';
+import Login from './Login'; // Import our new Login component
 import ProjectHub from './ProjectHub'; // Import our new ProjectHub component
 
 function App() {
@@ -25,10 +25,10 @@ function App() {
     return (
         <div>
             {isLoggedIn ? (
-                // If logged in, show the ProjectHub and pass the handleLogout function as a prop
+                // If the user IS logged in, show the ProjectHub
                 <ProjectHub onLogout={handleLogout} />
             ) : (
-                // If not logged in, show the Login component
+                // If the user is NOT logged in, show the Login component
                 <Login onLoginSuccess={handleLoginSuccess} />
             )}
         </div>

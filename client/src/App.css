@@ -1,38 +1,56 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f0f2f5;
+}
+
 .App {
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
+/* --- UPDATED HEADER STYLES --- */
 .App-header {
   background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  padding: 20px;
   color: white;
+  display: flex; /* Changed for horizontal layout */
+  align-items: center;
+  justify-content: space-between; /* Puts space between title and nav */
+  margin-bottom: 2rem;
 }
 
-.App-link {
-  color: #61dafb;
+.App-header h1 {
+  margin: 0;
+  font-size: 1.5rem; /* Adjusted font size */
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* --- NEW STYLES FOR TAB NAVIGATION --- */
+.App-header nav {
+  display: flex;
+  gap: 1rem; /* Adds space between buttons */
+}
+
+.App-header nav button {
+  background-color: #61dafb;
+  border: none;
+  border-radius: 4px;
+  color: #282c34;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.App-header nav button:hover {
+  background-color: #a3ecff;
+}
+
+/* Style for the main content area */
+main {
+  padding: 0 1rem;
 }

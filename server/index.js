@@ -7,6 +7,8 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
 const jwt = require('jsonwebtoken');
+const multer = require('multer'); // <-- ADD THIS
+const path = require('path');     // <-- AND THIS
 
 const app = express();
 const port = 3001;
@@ -14,6 +16,20 @@ const DB_PATH = './database.json';
 
 app.use(cors());
 app.use(express.json());
+
+// Multer Configuration for Image Uploads
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, 'uploads/'); // The 'uploads/' folder in your server directory
+    },
+    filename: function (req, file, cb) {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
+const upload = multer({ storage: storage });
+
+// Serve uploaded images statically
+app.use('/uploads', express.static('uploads'));
 
 // --- Helper Functions to Read/Write from JSON Database ---
 const readDB = () => JSON.parse(fs.readFileSync(DB_PATH));
@@ -69,6 +85,100 @@ app.post('/api/login', async (req, res) => {
         }
     } catch (error) {
         res.status(500).json({ message: "Server error during login." });
+    }
+});
+
+// GET all community posts
+app.get('/api/posts', (req, res) => {
+    const db = readDB();
+    const sortedPosts = db.posts.sort((a, b) => b.timestamp - a.timestamp);
+    res.json(sortedPosts);
+});
+
+// CREATE a new community post
+app.post('/api/posts', protect, upload.single('image'), async (req, res) => {
+    try {
+        const { content } = req.body;
+        const db = readDB();
+        const user = db.users.find(u => u.id === req.userId);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        const newPost = {
+            id: Date.now(),
+            userId: req.userId,
+            userEmail: user.email,
+            content: content,
+            imageUrl: req.file ? `/uploads/${req.file.filename}` : null,
+            timestamp: Date.now()
+        };
+
+        db.posts.push(newPost);
+        writeDB(db);
+        res.status(201).json(newPost);
+
+    } catch (error) {
+        console.error("Post creation error:", error);
+        res.status(500).json({ message: "Server error while creating post." });
+    }
+});
+
+// server/index.js
+
+// --- REPLACE your old app.delete with this entire block ---
+app.delete('/api/posts/:postId', protect, (req, res) => {
+    console.log(`--- DELETE request received for post ID: ${req.params.postId} ---`);
+    try {
+        const postId = parseInt(req.params.postId);
+        const loggedInUserId = req.userId;
+        console.log(`Parsed Post ID: ${postId}, Logged in User ID: ${loggedInUserId}`);
+
+        if (isNaN(postId)) {
+             console.error("Error: Post ID is not a number.");
+             return res.status(400).json({ message: 'Invalid post ID.' });
+        }
+
+        const db = readDB();
+        console.log("Database read successfully.");
+
+        if (!db.posts || !Array.isArray(db.posts)) {
+            console.error("CRITICAL: db.posts is not an array or does not exist.");
+            return res.status(500).json({ message: 'Server database is malformed.' });
+        }
+        console.log("db.posts is a valid array.");
+
+        const postToDelete = db.posts.find(p => p.id === postId);
+
+        if (!postToDelete) {
+            console.log(`Post with ID ${postId} not found in database.`);
+            return res.status(404).json({ message: 'Post not found.' });
+        }
+        console.log("Found post to delete:", JSON.stringify(postToDelete));
+
+        // Explicitly check if the post object has a userId
+        if (postToDelete.userId === undefined) {
+             console.error(`Post ${postId} is missing the 'userId' property.`);
+             return res.status(403).json({ message: 'Cannot verify post author.' });
+        }
+
+        if (postToDelete.userId !== loggedInUserId) {
+            console.log(`Authorization failed. Post Author ID: ${postToDelete.userId}, User ID: ${loggedInUserId}`);
+            return res.status(403).json({ message: 'Forbidden: You can only delete your own posts.' });
+        }
+        console.log("Authorization successful. Proceeding with deletion.");
+
+        db.posts = db.posts.filter(p => p.id !== postId);
+        writeDB(db);
+        console.log("Post deleted successfully from database.");
+
+        res.status(200).json({ message: 'Post deleted successfully.' });
+
+    } catch (error) {
+        console.error("--- UNCAUGHT ERROR IN DELETE ENDPOINT ---");
+        console.error(error); // This will print the full error and its stack trace
+        res.status(500).json({ message: 'Server error while deleting post.' });
     }
 });
 

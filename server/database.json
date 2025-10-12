@@ -1,33 +1,32 @@
 {
   "users": [
     {
-      "id": 1760233134972,
-      "name": "a",
-      "email": "a@gmail.com",
-      "password": "$2b$10$B8PGL7eyEyIFF/NlG06QneWA2etgRUlmJWLQow/vp4FtGn/w/4zue"
+      "id": 1760242990685,
+      "name": "tre",
+      "email": "tre@gmail.com",
+      "password": "$2b$10$ER/FhYlw/Gmm1/PrRlTCTuz66a0TT/I33OjZwtWBu3bgDTJ7BT7E2"
+    },
+    {
+      "id": 1760243051707,
+      "name": "bob",
+      "email": "bob@gmail.com",
+      "password": "$2b$10$jMThUB2cnmnRFIMOrG8qG.xblU.8jFMbLM12R1QT5PFSq1g.ZVWBG"
     }
   ],
   "projects": [
     {
-      "id": 1760234032599,
-      "userId": 1760233134972,
-      "name": "House",
+      "id": 1760242996807,
+      "userId": 1760242990685,
+      "name": "table",
       "todos": [
         {
-          "id": 1760234877628,
-          "text": "Buy Planks",
+          "id": 1760243001759,
+          "text": "wood",
           "completed": false
         }
       ],
-      "materials": [
-        {
-          "id": 1760234888535,
-          "name": "White Paint",
-          "quantity": "2 gals",
-          "cost": 25.34
-        }
-      ]
+      "materials": []
     }
   ],
-  "materials": []
+  "posts": []
 }
