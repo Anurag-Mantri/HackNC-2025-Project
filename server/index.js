@@ -91,6 +91,10 @@ app.post('/api/projects/:id/todos', protect, (req, res) => {
     const db = readDB();
     const projectIndex = db.projects.findIndex(p => p.id === projectId && p.userId === req.userId);
     if (projectIndex !== -1) {
+        // --- EDIT: ADDED SAFETY CHECK ---
+        if (!db.projects[projectIndex].todos) {
+            db.projects[projectIndex].todos = [];
+        }
         const newTodo = { id: Date.now(), text: text, completed: false };
         db.projects[projectIndex].todos.push(newTodo);
         writeDB(db);
@@ -103,7 +107,7 @@ app.put('/api/projects/:projectId/todos/:todoId', protect, (req, res) => {
     const { projectId, todoId } = req.params;
     const db = readDB();
     const projectIndex = db.projects.findIndex(p => p.id === parseInt(projectId) && p.userId === req.userId);
-    if (projectIndex !== -1) {
+    if (projectIndex !== -1 && db.projects[projectIndex].todos) {
         const todoIndex = db.projects[projectIndex].todos.findIndex(t => t.id === parseInt(todoId));
         if (todoIndex !== -1) {
             db.projects[projectIndex].todos[todoIndex].completed = !db.projects[projectIndex].todos[todoIndex].completed;
@@ -116,9 +120,13 @@ app.put('/api/projects/:projectId/todos/:todoId', protect, (req, res) => {
 app.post('/api/projects/:id/materials', protect, (req, res) => {
     const projectId = parseInt(req.params.id);
     const { name, quantity, cost } = req.body;
-    const db = readDB();
+    let db = readDB(); // Use let to allow modification
     const projectIndex = db.projects.findIndex(p => p.id === projectId && p.userId === req.userId);
     if (projectIndex !== -1) {
+        // --- EDIT: ADDED SAFETY CHECK ---
+        if (!db.projects[projectIndex].materials) {
+            db.projects[projectIndex].materials = [];
+        }
         const newMaterial = { id: Date.now(), name, quantity: quantity || '', cost: parseFloat(cost) || 0 };
         db.projects[projectIndex].materials.push(newMaterial);
         writeDB(db);
@@ -127,26 +135,65 @@ app.post('/api/projects/:id/materials', protect, (req, res) => {
         res.status(404).json({ error: 'Project not found.' });
     }
 });
+
+// --- EDIT: THIS ENTIRE ENDPOINT HAS BEEN REWRITTEN FOR CONVERSATIONAL MEMORY ---
 app.post('/api/chat', protect, async (req, res) => {
-    const { prompt } = req.body;
-    const structuredPrompt = `
-        You are a helpful DIY project assistant for a user of an application similar to Lowe's.
-        Analyze the following request and provide a response formatted as a single, clean JSON object.
-        Do not include the markdown "\`\`\`json" wrapper in your response.
-        The JSON object must have these exact keys:
+    const { history, prompt, context } = req.body;
+
+    // Safety check the context
+    const safeContext = {
+        todos: context?.todos || [],
+        materials: context?.materials || []
+    };
+
+    // Define the AI's personality and rules
+    const systemInstruction = `
+        You are "Maac," a helpful and context-aware DIY project assistant.
+        You MUST ALWAYS provide your response as a single, clean JSON object with no markdown.
+        The JSON object must have keys: 
         - "summary": A single, concise sentence summarizing the answer.
         - "materials": An array of strings, listing necessary tools and materials. This can be empty.
         - "steps": An array of strings, listing the core action steps. This can be empty.
-        - "questions": An array of 3-4 relevant, short follow-up questions to guide the user.
-        Here is the user's request: "${prompt}"
+        - "questions": An array of 3-4 relevant, short follow-up questions to guide the user that you would ask another ai to further this project.
+        When answering, ALWAYS consider the user's current project state:
+        - To-Do List: ${JSON.stringify(safeContext.todos)}
+        - Materials on Hand: ${JSON.stringify(safeContext.materials)}
     `;
+
     try {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-        const result = await model.generateContent(structuredPrompt);
-        const textResponse = result.response.text();
-        const jsonResponse = JSON.parse(textResponse);
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-2.5-flash", // Correct model name
+            systemInstruction: systemInstruction,
+        });
+
+        // Sanitize the history to ensure AI responses are strings, not objects
+        const sanitizedHistory = (history || []).map(entry => {
+            if (entry.role === 'user') return entry;
+            if (entry.role === 'model') {
+                if (typeof entry.parts[0].text === 'object') {
+                    return { role: 'model', parts: [{ text: JSON.stringify(entry.parts[0].text) }] };
+                }
+            }
+            return entry;
+        });
+
+        // Start the chat with the sanitized history
+        const chat = model.startChat({ history: sanitizedHistory });
+        const result = await chat.sendMessage(prompt);
+        let textResponse = result.response.text();
+        
+        // Robustly clean the response to remove markdown and get pure JSON
+        const startIndex = textResponse.indexOf('{');
+        const endIndex = textResponse.lastIndexOf('}');
+        if (startIndex === -1 || endIndex === -1) {
+            throw new Error("AI response did not contain a valid JSON object.");
+        }
+        const jsonString = textResponse.substring(startIndex, endIndex + 1);
+        const jsonResponse = JSON.parse(jsonString);
+
         res.json(jsonResponse);
+
     } catch (error) {
         console.error("AI Chat Error:", error);
         res.status(500).json({ error: 'Failed to get a structured response from AI.' });
@@ -156,28 +203,16 @@ app.post('/api/chat', protect, async (req, res) => {
 app.delete('/api/projects/:id', protect, (req, res) => {
     const projectId = parseInt(req.params.id);
     let db = readDB();
-
-    // Find the initial length of projects to see if one was deleted
     const initialLength = db.projects.length;
-
-    // Create a new array containing all projects EXCEPT the one that matches
-    // both the project ID and the logged-in user's ID.
     const updatedProjects = db.projects.filter(
         p => !(p.id === projectId && p.userId === req.userId)
     );
-
-    // If the array length is the same, no project was found/deleted
     if (updatedProjects.length === initialLength) {
         return res.status(404).json({ message: "Project not found or you do not have permission to delete it." });
     }
-
-    // If a project was removed, update the database
     db.projects = updatedProjects;
     writeDB(db);
-
-    res.status(200).json({ message: "Project deleted successfully." 
-    
-    });
+    res.status(200).json({ message: "Project deleted successfully." });
 });
 
 app.listen(port, () => {
