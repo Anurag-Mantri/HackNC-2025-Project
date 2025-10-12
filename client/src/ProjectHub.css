@@ -11,9 +11,7 @@
     box-sizing: border-box;
 }
 .hub-title {
-    /* --- ADD THIS LINE --- */
     font-family: "Avenir Next", "Avenir", "Helvetica Neue", Helvetica, Arial, sans-serif;
-
     text-align: center;
     color: #333;
     font-weight: 700;
@@ -60,7 +58,7 @@
 .ai-textarea { resize: vertical; min-height: 80px; }
 
 .hub-button {
-    background-color: #004792;
+    background-color: #007BFF;
     color: #fff;
     font-size: 12px;
     padding: 12px 45px;
@@ -74,12 +72,15 @@
     width: 100%;
     transition: background-color 0.2s ease;
 }
-.hub-button:hover { background-color: #004792; }
+.hub-button:hover { background-color: #0056b3; }
 .hub-button:disabled { background-color: #ccc; cursor: not-allowed; }
 
 /* --- Project List Styling --- */
 .project-list { list-style: none; padding: 0; margin: 0; }
 .project-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 15px;
     border-radius: 8px;
     cursor: pointer;
@@ -89,11 +90,30 @@
 }
 .project-list-item:hover { background-color: #f0f0f0; transform: translateX(5px); }
 .project-list-item.selected {
-    background-color: #004792;
+    background-color: #007BFF;
     color: #fff;
-    box-shadow: 0 2px 8px rgba(81, 45, 168, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
     transform: translateX(5px);
 }
+.delete-project-btn {
+    background-color: #ef5350;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 14px;
+    line-height: 24px;
+    text-align: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    visibility: hidden;
+}
+.project-list-item:hover .delete-project-btn { opacity: 0.8; visibility: visible; }
+.project-list-item.selected .delete-project-btn { background-color: #fff; color: #ef5350; }
+.delete-project-btn:hover { opacity: 1; transform: scale(1.1); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
 /* --- Checklist Item Styling --- */
 .todo-list { list-style: none; padding: 0; margin-bottom: 20px; }
@@ -112,7 +132,7 @@
     width: 18px;
     height: 18px;
     border-radius: 4px;
-    border: 2px solid #004792;
+    border: 2px solid #007BFF;
     margin-right: 12px;
     display: flex;
     align-items: center;
@@ -141,24 +161,37 @@
 .materials-table tfoot td { font-weight: 700; font-size: 1rem; color: #333; }
 .add-material-form { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 10px; align-items: center; }
 
-/* --- AI Section Styling --- */
-.ai-response-box {
-    background-color: #f7f9fc;
+/* --- AI Section Styling (UPDATED) --- */
+.conversation-history {
+    margin-top: 20px; /* NEW: Add margin-top to separate it from the input */
     border: 1px solid #e0e0e0;
     border-radius: 8px;
+    background-color: #f7f9fc;
     padding: 15px;
-    margin-top: 20px;
-    font-size: 14px;
-    max-height: 300px;
-    overflow-y: auto;
+    height: 400px; /* NEW: Give it a fixed height */
+    overflow-y: auto; /* NEW: Make it scrollable */
+    display: flex; /* NEW: To make chat scroll from bottom */
+    flex-direction: column-reverse; /* NEW: Reverses order, new messages at bottom */
 }
-.ai-response-box strong { display: block; margin-bottom: 15px; }
-.ai-response-section { margin-bottom: 20px; }
+.chat-entry { margin-bottom: 20px; }
+.chat-entry-user {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+    padding-left: 5px;
+}
+.chat-entry-model {
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #e8e8e8;
+}
+.ai-response-section { margin-top: 15px; }
 .ai-response-section h4 { font-size: 1rem; font-weight: 600; color: #333; margin-bottom: 8px; }
 .ai-response-section ul { list-style: none; padding-left: 5px; }
 .ai-response-section li { margin-bottom: 5px; }
 .ai-follow-up-questions button {
-    background-color: #f0f0f0;
+    background-color: #e9ecef;
     color: #333;
     font-size: 12px;
     padding: 8px 15px;
@@ -169,37 +202,4 @@
     margin-top: 5px;
     transition: background-color 0.2s ease;
 }
-.ai-follow-up-questions button:hover { background-color: #e0e0e0; }
-
-/* In client/src/ProjectHub.css */
-
-/* --- ADD THESE NEW STYLES AT THE END --- */
-
-/* Make the list item a flex container to position the button */
-.project-list-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.delete-project-btn {
-    background-color: #ef5350; /* A nice red color */
-    color: white;
-    border: none;
-    border-radius: 50%; /* Makes it a circle */
-    width: 24px;
-    height: 24px;
-    font-size: 14px;
-    line-height: 24px; /* Centers the 'x' vertically */
-    text-align: center;
-    cursor: pointer;
-    opacity: 0.7;
-    transition: all 0.2s ease;
-    flex-shrink: 0; /* Prevents the button from shrinking */
-}
-
-.delete-project-btn:hover {
-    opacity: 1;
-    transform: scale(1.1);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
+.ai-follow-up-questions button:hover { background-color: #d1d9e0; }
