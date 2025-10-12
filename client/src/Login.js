@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './Login.css';
 
-const API_URL = 'http://localhost:3001';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const allowedDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'aol.com', 'icloud.com', 'hotmail.com'];
 
