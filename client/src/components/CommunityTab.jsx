@@ -129,7 +129,7 @@ if (token) {
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch('${API_URL}/api/posts');
+      const response = await fetch(`${API_URL}/api/posts`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -174,7 +174,7 @@ if (token) {
     }
 
     try {
-      const response = await fetch('${API_URL}/api/posts', {
+      const response = await fetch(`${API_URL}/api/posts`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
