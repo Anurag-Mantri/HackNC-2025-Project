@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import CommunityTab from './components/CommunityTab';
 import './ProjectHub.css';
+import Dropdown from './components/Dropdown';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
@@ -123,6 +124,7 @@ function ProjectHub({ onLogout }) {
     // --- MODIFIED JSX RETURN BLOCK ---
     return (
         <div className="hub-container">
+            {/* ... (Your header and main content structure remains the same) ... */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                 <h1 className="hub-title" style={{ marginBottom: '0', textAlign: 'left' }}>Lowe's Project Hub</h1>
                 <div>
@@ -134,13 +136,12 @@ function ProjectHub({ onLogout }) {
 
             <div className="main-content">
                 {activeView === 'community' ? (
-                    // If view is 'community', render the CommunityTab
                     <div style={{ width: '100%' }}>
                         <CommunityTab />
                     </div>
                 ) : (
-                    // Otherwise, render the projects view using a Fragment
                     <>
+                        {/* ... (Left column remains the same) ... */}
                         <div className="left-column">
                             <div className="hub-panel">
                                 <h2 className="panel-title">Create New Project</h2>
@@ -163,63 +164,52 @@ function ProjectHub({ onLogout }) {
                             {selectedProject ? (
                                 <>
                                     <h2 className="panel-title">Project: {selectedProject.name}</h2>
-                                    <h3 style={{ fontWeight: 500, marginBottom: '10px' }}>Project Checklist</h3>
-                                    <ul className="todo-list">
-                                        {selectedProject.todos?.map((todo) => (
-                                            <li key={todo.id} className={`todo-checklist-item ${todo.completed ? 'completed' : ''}`} onClick={() => handleToggleTodo(selectedProject.id, todo.id)}>
-                                                <div className="todo-checkbox"><div className="todo-checkbox-tick" /></div>
-                                                <span>{todo.text}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                    <div className="add-todo-box">
-                                        <input type="text" placeholder="Add new checklist item" className="hub-input" value={newTodoText} onChange={(e) => setNewTodoText(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleAddTodo()} />
-                                        <button className="hub-button" onClick={handleAddTodo} style={{ width: 'auto', marginTop: '0' }}>Add</button>
-                                    </div>
-                                    <h3 style={{ fontWeight: 500, borderTop: '1px solid #eee', paddingTop: '20px', marginBottom: '10px' }}>Materials & Costs</h3>
-                                    <table className="materials-table">
-                                        <thead>
-                                            <tr><th>Material</th><th>Quantity</th><th>Cost ($)</th></tr>
-                                        </thead>
-                                        <tbody>
-                                            {selectedProject.materials?.map(mat => (
-                                                <tr key={mat.id}><td>{mat.name}</td><td>{mat.quantity}</td><td>{mat.cost.toFixed(2)}</td></tr>
-                                            ))}
-                                        </tbody>
-                                        <tfoot>
-                                            <tr><td><strong>Total Estimated Cost</strong></td><td></td><td><strong>${totalCost.toFixed(2)}</strong></td></tr>
-                                        </tfoot>
-                                    </table>
-                                    <div className="add-material-form">
-                                        <input type="text" placeholder="Material Name" className="hub-input" value={materialName} onChange={(e) => setMaterialName(e.target.value)} />
-                                        <input type="text" placeholder="Quantity (e.g., 5 pcs)" className="hub-input" value={materialQty} onChange={(e) => setMaterialQty(e.target.value)} />
-                                        <input type="number" placeholder="Total Cost" className="hub-input" value={materialCost} onChange={(e) => setMaterialCost(e.target.value)} />
-                                        <button className="hub-button" onClick={handleAddMaterial} style={{ width: 'auto', marginTop: '0', padding: '12px 20px' }}>Add</button>
-                                    </div>
-
-                                    <h3 style={{ fontWeight: 500, borderTop: '1px solid #eee', paddingTop: '20px' }}>Ask CAMA for Help!</h3>
                                     
+                                    {/* --- DROPDOWN FOR CHECKLIST --- */}
+                                    <Dropdown title="Project Checklist">
+                                        <ul className="todo-list">
+                                            {selectedProject.todos?.map((todo) => (
+                                                <li key={todo.id} className={`todo-checklist-item ${todo.completed ? 'completed' : ''}`} onClick={() => handleToggleTodo(selectedProject.id, todo.id)}>
+                                                    <div className="todo-checkbox"><div className="todo-checkbox-tick" /></div>
+                                                    <span>{todo.text}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        <div className="add-todo-box">
+                                            <input type="text" placeholder="Add new checklist item" className="hub-input" value={newTodoText} onChange={(e) => setNewTodoText(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleAddTodo()} />
+                                            <button className="hub-button" onClick={handleAddTodo} style={{ width: 'auto', marginTop: '0' }}>Add</button>
+                                        </div>
+                                    </Dropdown>
+
+                                    {/* --- DROPDOWN FOR MATERIALS --- */}
+                                    <Dropdown title="Materials & Costs">
+                                        <table className="materials-table">
+                                            <thead>
+                                                <tr><th>Material</th><th>Quantity</th><th>Cost ($)</th></tr>
+                                            </thead>
+                                            <tbody>
+                                                {selectedProject.materials?.map(mat => (
+                                                    <tr key={mat.id}><td>{mat.name}</td><td>{mat.quantity}</td><td>{mat.cost.toFixed(2)}</td></tr>
+                                                ))}
+                                            </tbody>
+                                            <tfoot>
+                                                <tr><td><strong>Total Estimated Cost</strong></td><td></td><td><strong>${totalCost.toFixed(2)}</strong></td></tr>
+                                            </tfoot>
+                                        </table>
+                                        <div className="add-material-form">
+                                            <input type="text" placeholder="Material Name" className="hub-input" value={materialName} onChange={(e) => setMaterialName(e.target.value)} />
+                                            <input type="text" placeholder="Quantity (e.g., 5 pcs)" className="hub-input" value={materialQty} onChange={(e) => setMaterialQty(e.target.value)} />
+                                            <input type="number" placeholder="Total Cost" className="hub-input" value={materialCost} onChange={(e) => setMaterialCost(e.target.value)} />
+                                            <button className="hub-button" onClick={handleAddMaterial} style={{ width: 'auto', marginTop: '0', padding: '12px 20px' }}>Add</button>
+                                        </div>
+                                    </Dropdown>
+
+                                    {/* ... (Your AI chat section remains the same) ... */}
+                                    <h3 style={{ fontWeight: 500, borderTop: '1px solid #eee', paddingTop: '20px' }}>Ask CAMA for Help!</h3>
                                     <textarea placeholder="Ask a question about your project..." className="ai-textarea" value={prompt} onChange={(e) => setPrompt(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleAskAI())} />
                                     <button className="hub-button" onClick={() => handleAskAI()} disabled={loading}>{loading ? 'Thinking...' : 'Ask AI'}</button>
-                                    
                                     <div className="conversation-history" ref={chatHistoryRef}>
-                                        {[...conversationHistory].reverse().map((entry, index) => (
-                                            <div key={index} className="chat-entry">
-                                                {entry.role === 'model' && (
-                                                    <div className="chat-entry-model">
-                                                        <strong>Maac:</strong>
-                                                        <p style={{fontStyle: 'italic', margin: '10px 0'}}>{entry.parts[0].text.summary}</p>
-                                                        {entry.parts[0].text.materials?.length > 0 && (<div className="ai-response-section"><h4>New Materials Needed</h4><ul>{entry.parts[0].text.materials.map((item, i) => <li key={i}>- {item}</li>)}</ul></div>)}
-                                                        {entry.parts[0].text.steps?.length > 0 && (<div className="ai-response-section"><h4>Next Steps</h4><ul>{entry.parts[0].text.steps.map((step, i) => <li key={i}>- {step}</li>)}</ul></div>)}
-                                                        {entry.parts[0].text.questions?.length > 0 && (<div className="ai-response-section ai-follow-up-questions"><h4>Next Questions</h4>{entry.parts[0].text.questions.map((q, i) => (<button key={i} onClick={() => handleFollowUpQuestion(q)}>{q}</button>))}</div>)}
-                                                    </div>
-                                                )}
-                                                {entry.role === 'user' && (
-                                                    <div className="chat-entry-user">You: {entry.parts[0].text}</div>
-                                                )}
-                                            </div>
-                                        ))}
-                                        {conversationHistory.length === 0 && <p style={{ fontSize: '14px', color: '#888', textAlign: 'center', margin: 'auto' }}>Ask a question to start the conversation...</p>}
+                                        {/* ... conversation history mapping ... */}
                                     </div>
                                 </>
                             ) : (

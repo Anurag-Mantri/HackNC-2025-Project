@@ -11,6 +11,12 @@
       "name": "bob",
       "email": "bob@gmail.com",
       "password": "$2b$10$jMThUB2cnmnRFIMOrG8qG.xblU.8jFMbLM12R1QT5PFSq1g.ZVWBG"
+    },
+    {
+      "id": 1760724435971,
+      "name": "anurag",
+      "email": "a@gmail.com",
+      "password": "$2b$10$KzPwQV42dqac0pmGedPobOlCfsvg.M/3aWz/Ej3UKdFfQlCvKBSam"
     }
   ],
   "projects": [
@@ -25,6 +31,13 @@
           "completed": false
         }
       ],
+      "materials": []
+    },
+    {
+      "id": 1760724442495,
+      "userId": 1760724435971,
+      "name": "bench",
+      "todos": [],
       "materials": []
     }
   ],

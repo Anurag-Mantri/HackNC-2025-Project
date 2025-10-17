@@ -203,3 +203,32 @@
     transition: background-color 0.2s ease;
 }
 .ai-follow-up-questions button:hover { background-color: #d1d9e0; }
+
+.dropdown-section {
+  margin: 20px 0;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+.dropdown-toggle {
+  background-color: #f7f7f7;
+  border: 1px solid #ddd;
+  padding: 12px 15px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font-size: 1.1rem;
+  font-weight: 500;
+  border-radius: 5px;
+  margin-bottom: 10px; /* Add some space when dropdown is open */
+}
+
+.dropdown-toggle:hover {
+    background-color: #e9e9e9;
+}
+
+.dropdown-content {
+  /* The content is already styled, so you may not need specific rules here */
+  /* You can add padding or borders if you like */
+  padding: 0 10px;
+}
