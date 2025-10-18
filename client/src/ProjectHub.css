@@ -232,3 +232,30 @@
   /* You can add padding or borders if you like */
   padding: 0 10px;
 }
+
+.todo-checklist-item {
+  display: flex;
+  align-items: center;
+  cursor: default; /* Remove cursor from the whole item */
+}
+
+.importance-star {
+  font-size: 20px;
+  color: #ccc; /* Default color for the star */
+  cursor: pointer;
+  margin-right: 10px;
+  transition: color 0.2s;
+}
+
+.importance-star:hover {
+  color: #f0c420; /* Color on hover */
+}
+
+.importance-star.important {
+  color: #ffc107; /* Color for an important task */
+}
+
+.todo-text {
+  cursor: pointer; /* Add cursor back to the text part */
+  flex-grow: 1;
+}

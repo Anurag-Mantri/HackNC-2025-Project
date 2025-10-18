@@ -37,7 +37,14 @@
       "id": 1760724442495,
       "userId": 1760724435971,
       "name": "bench",
-      "todos": [],
+      "todos": [
+        {
+          "id": 1760800753721,
+          "text": "build",
+          "completed": false,
+          "isImportant": true
+        }
+      ],
       "materials": []
     }
   ],

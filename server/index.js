@@ -9,6 +9,7 @@ const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const multer = require('multer'); // <-- ADD THIS
 const path = require('path');     // <-- AND THIS
+const axios = require('axios');
 
 const app = express();
 const port = 3001;
@@ -225,7 +226,7 @@ app.post('/api/projects/:id/todos', protect, (req, res) => {
         if (!db.projects[projectIndex].todos) {
             db.projects[projectIndex].todos = [];
         }
-        const newTodo = { id: Date.now(), text: text, completed: false };
+        const newTodo = { id: Date.now(), text: text, completed: false, isImportant: false };
         db.projects[projectIndex].todos.push(newTodo);
         writeDB(db);
         res.status(200).json(db.projects[projectIndex]);
@@ -350,6 +351,81 @@ app.delete('/api/projects/:id', protect, (req, res) => {
     db.projects = updatedProjects;
     writeDB(db);
     res.status(200).json({ message: "Project deleted successfully." });
+});
+
+app.get('/api/project-ideas', protect, async (req, res) => {
+    try {
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        
+        const prompt = `
+            You are a creative assistant for a home improvement store. 
+            Generate exactly 3 unique and appealing DIY project ideas.
+            For each project, provide a title, a short description, an estimated time, an estimated cost, a list of essential materials, AND a new key called "imageKeywords".
+            The "imageKeywords" value should be a clean, 2-3 word search query suitable for finding a high-quality photo of the finished project on a stock photo website. For example, if the title is "Build a DIY Rustic Bookshelf", the imageKeywords should be "rustic bookshelf".
+            
+            You MUST output ONLY a single, valid JSON object with a key 'projects' containing an array of these three project ideas. 
+            Do not include any other text or markdown formatting.`;
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
+        const ideas = JSON.parse(text).projects.slice(0, 3);
+
+        const projectsWithImages = await Promise.all(
+            ideas.map(async (idea) => {
+                // Use the new, clean imageKeywords provided by the AI for the search
+                const searchQuery = idea.imageKeywords || idea.title; // Fallback to title if keywords are missing
+                const searchUrl = `https://api.unsplash.com/search/photos?page=1&query=${encodeURIComponent(searchQuery)}&client_id=${process.env.UNSPLASH_ACCESS_KEY}`;
+                
+                let imageUrl = `https://picsum.photos/seed/default/400/300`; // Fallback image
+
+                try {
+                    const imageResponse = await axios.get(searchUrl);
+                    if (imageResponse.data.results && imageResponse.data.results.length > 0) {
+                        imageUrl = imageResponse.data.results[0].urls.regular;
+                    }
+                } catch (unsplashError) {
+                    console.error(`Unsplash API error for query "${searchQuery}":`, unsplashError.message);
+                }
+                
+                return { ...idea, imageUrl };
+            })
+        );
+        
+        res.json(projectsWithImages);
+
+    } catch (error) {
+        console.error("AI Project Idea Generation Error:", error);
+        res.status(500).json({ error: "Failed to generate project ideas from AI." });
+    }
+});
+
+app.put('/api/projects/:projectId/todos/:todoId/toggleImportant', protect, (req, res) => {
+    const { projectId, todoId } = req.params;
+    const db = readDB();
+    
+    // Find the project belonging to the logged-in user
+    const projectIndex = db.projects.findIndex(p => p.id === parseInt(projectId) && p.userId === req.userId);
+
+    // If the project is found and has a 'todos' array
+    if (projectIndex !== -1 && db.projects[projectIndex].todos) {
+        // Find the specific to-do within that project
+        const todoIndex = db.projects[projectIndex].todos.findIndex(t => t.id === parseInt(todoId));
+        
+        // If the to-do is found
+        if (todoIndex !== -1) {
+            const currentTodo = db.projects[projectIndex].todos[todoIndex];
+            // Toggle the 'isImportant' property. If it doesn't exist, it will be set to 'true'.
+            currentTodo.isImportant = !currentTodo.isImportant;
+
+            writeDB(db); // Save the changes to the database
+            return res.status(200).json(db.projects[projectIndex]);
+        }
+    }
+    
+    // If project or to-do wasn't found, send an error
+    res.status(404).json({ message: "Project or To-Do not found." });
 });
 
 app.listen(port, () => {

@@ -3,8 +3,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import CommunityTab from './components/CommunityTab';
-import './ProjectHub.css';
+import HomeTab from './components/HomeTab';
 import Dropdown from './components/Dropdown';
+import './ProjectHub.css';
+
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
@@ -15,7 +17,7 @@ const getAuthHeaders = () => {
 
 // --- No changes to the component's logic, state, or functions ---
 function ProjectHub({ onLogout }) {
-    const [activeView, setActiveView] = useState('projects');
+    const [activeView, setActiveView] = useState('home'); 
     const [projects, setProjects] = useState([]);
     const [selectedProject, setSelectedProject] = useState(null);
     const [newProjectName, setNewProjectName] = useState('');
@@ -29,10 +31,8 @@ function ProjectHub({ onLogout }) {
     const chatHistoryRef = useRef(null);
 
     useEffect(() => {
-        if (activeView === 'projects') {
-            fetchProjects();
-        }
-    }, [activeView]);
+        fetchProjects();
+    }, []);
 
     useEffect(() => {
         setConversationHistory([]);
@@ -119,29 +119,46 @@ function ProjectHub({ onLogout }) {
         handleAskAI(question);
     };
 
+    const handleToggleImportant = async (projectId, todoId) => {
+        try {
+            // This new endpoint should be created on your server
+            await axios.put(`${API_URL}/api/projects/${projectId}/todos/${todoId}/toggleImportant`, {}, getAuthHeaders());
+            // Refresh projects to show the change
+            fetchProjects();
+        } catch (error) {
+            console.error("Failed to toggle todo importance:", error);
+        }
+    };
+
     const totalCost = selectedProject?.materials?.reduce((sum, item) => sum + (item.cost || 0), 0) || 0;
 
     // --- MODIFIED JSX RETURN BLOCK ---
     return (
         <div className="hub-container">
-            {/* ... (Your header and main content structure remains the same) ... */}
+            {/* STEP 1: HEADER IS UPDATED */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                 <h1 className="hub-title" style={{ marginBottom: '0', textAlign: 'left' }}>Lowe's Project Hub</h1>
                 <div>
+                    <button className="hub-button" onClick={() => setActiveView('home')} style={{ width: 'auto', marginRight: '10px' }}>Home</button>
                     <button className="hub-button" onClick={() => setActiveView('projects')} style={{ width: 'auto', marginRight: '10px' }}>My Projects</button>
                     <button className="hub-button" onClick={() => setActiveView('community')} style={{ width: 'auto', marginRight: '10px' }}>Community</button>
                     <button className="hub-button" onClick={onLogout} style={{ width: 'auto', backgroundColor: '#d32f2f' }}>Logout</button>
                 </div>
             </div>
 
+            {/* STEP 2: MAIN CONTENT IS RESTRUCTURED */}
             <div className="main-content">
-                {activeView === 'community' ? (
+                {activeView === 'home' && <HomeTab projects={projects} />}
+
+                {activeView === 'community' && (
                     <div style={{ width: '100%' }}>
                         <CommunityTab />
                     </div>
-                ) : (
+                )}
+                
+                {activeView === 'projects' && (
                     <>
-                        {/* ... (Left column remains the same) ... */}
+                        {/* Your original projects view now sits inside this condition */}
                         <div className="left-column">
                             <div className="hub-panel">
                                 <h2 className="panel-title">Create New Project</h2>
@@ -164,14 +181,24 @@ function ProjectHub({ onLogout }) {
                             {selectedProject ? (
                                 <>
                                     <h2 className="panel-title">Project: {selectedProject.name}</h2>
-                                    
+
                                     {/* --- DROPDOWN FOR CHECKLIST --- */}
                                     <Dropdown title="Project Checklist">
                                         <ul className="todo-list">
                                             {selectedProject.todos?.map((todo) => (
-                                                <li key={todo.id} className={`todo-checklist-item ${todo.completed ? 'completed' : ''}`} onClick={() => handleToggleTodo(selectedProject.id, todo.id)}>
-                                                    <div className="todo-checkbox"><div className="todo-checkbox-tick" /></div>
-                                                    <span>{todo.text}</span>
+                                                <li key={todo.id} className={`todo-checklist-item ${todo.completed ? 'completed' : ''}`}>
+                                                    <span 
+                                                        className={`importance-star ${todo.isImportant ? 'important' : ''}`} 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleToggleImportant(selectedProject.id, todo.id);
+                                                        }}
+                                                    >
+                                                        ★
+                                                    </span>
+                                                    <span className="todo-text" onClick={() => handleToggleTodo(selectedProject.id, todo.id)}>
+                                                        {todo.text}
+                                                    </span>
                                                 </li>
                                             ))}
                                         </ul>
@@ -204,12 +231,45 @@ function ProjectHub({ onLogout }) {
                                         </div>
                                     </Dropdown>
 
-                                    {/* ... (Your AI chat section remains the same) ... */}
+                                    {/* --- AI CHAT SECTION --- */}
                                     <h3 style={{ fontWeight: 500, borderTop: '1px solid #eee', paddingTop: '20px' }}>Ask CAMA for Help!</h3>
                                     <textarea placeholder="Ask a question about your project..." className="ai-textarea" value={prompt} onChange={(e) => setPrompt(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleAskAI())} />
                                     <button className="hub-button" onClick={() => handleAskAI()} disabled={loading}>{loading ? 'Thinking...' : 'Ask AI'}</button>
                                     <div className="conversation-history" ref={chatHistoryRef}>
-                                        {/* ... conversation history mapping ... */}
+                                        {[...conversationHistory].reverse().map((entry, index) => (
+                                            <div key={index} className="chat-entry">
+                                                {entry.role === 'model' && (
+                                                    <div className="chat-entry-model">
+                                                        <strong>Maac:</strong>
+                                                        {/* CORRECTED: Now uses entry.parts[0].text */}
+                                                        <p style={{fontStyle: 'italic', margin: '10px 0'}}>{entry.parts[0].text.summary}</p>
+                                                        {entry.parts[0].text.materials?.length > 0 && (
+                                                            <div className="ai-response-section">
+                                                                <h4>New Materials Needed</h4>
+                                                                <ul>{entry.parts[0].text.materials.map((item, i) => <li key={i}>- {item}</li>)}</ul>
+                                                            </div>
+                                                        )}
+                                                        {entry.parts[0].text.steps?.length > 0 && (
+                                                            <div className="ai-response-section">
+                                                                <h4>Next Steps</h4>
+                                                                <ul>{entry.parts[0].text.steps.map((step, i) => <li key={i}>- {step}</li>)}</ul>
+                                                            </div>
+                                                        )}
+                                                        {entry.parts[0].text.questions?.length > 0 && (
+                                                            <div className="ai-response-section ai-follow-up-questions">
+                                                                <h4>Next Questions</h4>
+                                                                {entry.parts[0].text.questions.map((q, i) => (<button key={i} onClick={() => handleFollowUpQuestion(q)}>{q}</button>))}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                                {entry.role === 'user' && (
+                                                    // CORRECTED: Now uses entry.parts[0].text
+                                                    <div className="chat-entry-user">You: {entry.parts[0].text}</div>
+                                                )}
+                                            </div>
+                                        ))}
+                                        {conversationHistory.length === 0 && <p style={{ fontSize: '14px', color: '#888', textAlign: 'center', margin: 'auto' }}>Ask a question to start the conversation...</p>}
                                     </div>
                                 </>
                             ) : (
